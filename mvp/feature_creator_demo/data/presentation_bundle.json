@@ -1,0 +1,187 @@
+{
+  "match_filenames": ["tesla.csv", "Tesla.csv", "TSLA.csv"],
+  "dataset_summary": {
+    "domain": "дневные котировки акций (OHLCV)",
+    "what_is_measured": "Исторические цены и объёмы Tesla (TSLA): open, high, low, close, volume; период 2019-01-02 — 2024-12-31, ~1510 торговых дней.",
+    "possible_ml_task_types": ["classification"],
+    "possible_ml_task_comment": "Предсказание направления цены закрытия на следующий торговый день (up/down) по OHLCV и сгенерированным признакам.",
+    "uncertainty_note": "Оценка уверенности зависит от горизонта прогноза и режима волатильности рынка."
+  },
+  "column_roles": [
+    {
+      "column": "date",
+      "roles": ["timestamp"],
+      "rationale": "Торговая дата; задаёт порядок рядов для лагов и rolling-окон."
+    },
+    {
+      "column": "adj_close",
+      "roles": ["feature"],
+      "rationale": "Скорректированная цена закрытия; дублирует close в этом экспорте."
+    },
+    {
+      "column": "close",
+      "roles": ["feature", "target_proxy"],
+      "rationale": "Цена закрытия — база для доходностей, волатильности и прокси-таргета next-day."
+    },
+    {
+      "column": "high",
+      "roles": ["feature"],
+      "rationale": "Дневной максимум; участвует в диапазоне и typical price."
+    },
+    {
+      "column": "low",
+      "roles": ["feature"],
+      "rationale": "Дневной минимум; участвует в диапазоне и typical price."
+    },
+    {
+      "column": "open",
+      "roles": ["feature"],
+      "rationale": "Цена открытия; нужна для overnight/gap признаков."
+    },
+    {
+      "column": "volume",
+      "roles": ["feature"],
+      "rationale": "Объём торгов; z-score по 20 дням ловит аномальную ликвидность."
+    }
+  ],
+  "feature_ideas": [
+    {
+      "name": "gap_from_prev_close_pct",
+      "formula_or_description": "(open - close.shift(1)) / close.shift(1)",
+      "rationale": "Overnight gap отражает реакцию на новости вне сессии; на TSLA дал наибольший прирост ROC-AUC в time-series CV.",
+      "applies_to_models": ["tabular", "nn"],
+      "implementation_notes": "Строгая сортировка по date; первый ряд — NaN."
+    },
+    {
+      "name": "vwap_proxy_dev",
+      "formula_or_description": "(close - (high+low+close)/3) / ((high+low+close)/3)",
+      "rationale": "Отклонение close от typical price (прокси VWAP) кодирует внутридневное давление покупателей/продавцов.",
+      "applies_to_models": ["tabular", "nn"],
+      "implementation_notes": "Устойчив к масштабу цены; хорошо сочетается с tree-based и MLP."
+    },
+    {
+      "name": "volatility_20d",
+      "formula_or_description": "close.pct_change().rolling(20).std()",
+      "rationale": "20-дневная реализованная волатильность — режим рынка; помогает модели различать спокойные и турбулентные периоды.",
+      "applies_to_models": ["tabular", "nn"],
+      "implementation_notes": "Минимум 20 наблюдений до первого валидного значения."
+    },
+    {
+      "name": "intraday_range_pct",
+      "formula_or_description": "(high - low) / close",
+      "rationale": "Нормированный дневной диапазон — прокси внутридневной неопределённости и «ширины» свечи.",
+      "applies_to_models": ["tabular", "nn"],
+      "implementation_notes": "При close≈0 добавить epsilon в знаменатель."
+    },
+    {
+      "name": "volume_zscore_20",
+      "formula_or_description": "(volume - rolling_mean_20) / rolling_std_20",
+      "rationale": "Аномальный объём часто совпадает с разворотами и новостными всплесками.",
+      "applies_to_models": ["tabular"],
+      "implementation_notes": "Rolling только по прошлым дням; std=0 → заменить на 1e-9."
+    }
+  ],
+  "ml_validation": [
+    {
+      "feature": "gap_from_prev_close_pct",
+      "model": "LightGBM",
+      "metric": "ROC-AUC",
+      "baseline": 0.5037,
+      "with_feature": 0.5237,
+      "delta": 0.0201,
+      "cv_folds": 5,
+      "status": "passed"
+    },
+    {
+      "feature": "vwap_proxy_dev",
+      "model": "LightGBM",
+      "metric": "ROC-AUC",
+      "baseline": 0.5037,
+      "with_feature": 0.5233,
+      "delta": 0.0196,
+      "cv_folds": 5,
+      "status": "passed"
+    },
+    {
+      "feature": "intraday_range_pct",
+      "model": "LightGBM",
+      "metric": "ROC-AUC",
+      "baseline": 0.5037,
+      "with_feature": 0.5212,
+      "delta": 0.0175,
+      "cv_folds": 5,
+      "status": "passed"
+    },
+    {
+      "feature": "volume_zscore_20",
+      "model": "LightGBM",
+      "metric": "ROC-AUC",
+      "baseline": 0.5037,
+      "with_feature": 0.5132,
+      "delta": 0.0095,
+      "cv_folds": 5,
+      "status": "passed"
+    },
+    {
+      "feature": "volatility_20d",
+      "model": "LightGBM",
+      "metric": "ROC-AUC",
+      "baseline": 0.5037,
+      "with_feature": 0.5112,
+      "delta": 0.0076,
+      "cv_folds": 5,
+      "status": "passed"
+    },
+    {
+      "feature": "gap_from_prev_close_pct",
+      "model": "XGBoost",
+      "metric": "ROC-AUC",
+      "baseline": 0.5096,
+      "with_feature": 0.5154,
+      "delta": 0.0058,
+      "cv_folds": 5,
+      "status": "passed"
+    },
+    {
+      "feature": "intraday_range_pct",
+      "model": "XGBoost",
+      "metric": "ROC-AUC",
+      "baseline": 0.5096,
+      "with_feature": 0.5142,
+      "delta": 0.0045,
+      "cv_folds": 5,
+      "status": "passed"
+    },
+    {
+      "feature": "vwap_proxy_dev",
+      "model": "MLP (PyTorch)",
+      "metric": "ROC-AUC",
+      "baseline": 0.5126,
+      "with_feature": 0.5177,
+      "delta": 0.0051,
+      "cv_folds": 5,
+      "status": "passed"
+    },
+    {
+      "feature": "intraday_range_pct",
+      "model": "MLP (PyTorch)",
+      "metric": "ROC-AUC",
+      "baseline": 0.5126,
+      "with_feature": 0.5258,
+      "delta": 0.0132,
+      "cv_folds": 5,
+      "status": "passed"
+    },
+    {
+      "feature": "gap_from_prev_close_pct",
+      "model": "MLP (PyTorch)",
+      "metric": "ROC-AUC",
+      "baseline": 0.5126,
+      "with_feature": 0.5141,
+      "delta": 0.0015,
+      "cv_folds": 5,
+      "status": "marginal"
+    }
+  ],
+  "enriched_preview": []
+}

@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feature Creator</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css">
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --blue: #1a73e8;
+      --blue-soft: #e8f0fe;
+      --green: #1e8e3e;
+      --text: #202124;
+      --muted: #5f6368;
+      --border: #dadce0;
+      --bg: #f8f9fa;
+    }
+
+    .reveal {
+      font-family: "Google Sans", "Roboto", system-ui, sans-serif;
+      color: var(--text);
+    }
+
+    .reveal .slides section { padding: 0 2.5rem; }
+    .reveal .slides { text-align: left; }
+
+    .reveal .slides section.statement,
+    .reveal .slides section.center-slide:not(.title-slide) {
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: center !important;
+      height: 100% !important;
+    }
+
+    .reveal h1, .reveal h2 {
+      font-weight: 500;
+      text-transform: none;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .reveal h2 {
+      font-size: 1.35em;
+      color: var(--blue);
+      margin-bottom: 0.9em;
+    }
+
+    .reveal .lead {
+      font-size: 1.15em;
+      line-height: 1.35;
+      color: var(--text);
+      max-width: 92%;
+    }
+
+    .reveal .muted {
+      color: var(--muted);
+      font-size: 0.85em;
+    }
+
+    .reveal .prereq {
+      display: inline-block;
+      margin-top: 1em;
+      padding: 0.35em 0.85em;
+      background: #fef7e0;
+      border: 1px solid #f9ab00;
+      border-radius: 999px;
+      color: #3c4043;
+      font-size: 0.72em;
+      font-weight: 500;
+    }
+
+    /* —— Title & statement slides —— */
+    .reveal .center-slide {
+      text-align: center !important;
+    }
+
+    .reveal .center-slide h1 {
+      color: var(--blue);
+      font-size: 2.5em;
+      margin-bottom: 0.25em;
+    }
+
+    .reveal .slides section.title-slide {
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      height: 100% !important;
+      min-height: 100% !important;
+      padding: 0 2.5rem 3rem !important;
+      box-sizing: border-box !important;
+      text-align: center !important;
+    }
+
+    .reveal .title-slide .title-center {
+      flex: 1 1 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .reveal .title-slide .title-main {
+      font-size: 3.4em;
+      font-weight: 500;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      margin: 0;
+      color: var(--blue);
+      background: linear-gradient(135deg, #1a73e8 0%, #4285f4 55%, #1a73e8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .reveal .title-slide .title-footer {
+      flex: 0 0 auto;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      font-size: 0.85em;
+      font-weight: 500;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .reveal .center-slide .lead {
+      margin: 0 auto;
+      max-width: 80%;
+    }
+
+    .reveal .statement {
+      text-align: center !important;
+    }
+
+    .reveal .statement .hero {
+      font-size: 1.75em;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.25;
+      max-width: 95%;
+      margin: 0 auto 0.6em;
+    }
+
+    .reveal .statement .hero em {
+      font-style: normal;
+      color: var(--blue);
+    }
+
+    /* —— Bullets: max 3, large —— */
+    .reveal ul.tight {
+      list-style: none;
+      padding: 0;
+      margin: 0.5em 0 0;
+    }
+
+    .reveal ul.tight li {
+      font-size: 0.92em;
+      line-height: 1.35;
+      margin-bottom: 0.55em;
+      padding-left: 1.1em;
+      position: relative;
+    }
+
+    .reveal ul.tight li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.55em;
+      width: 0.35em;
+      height: 0.35em;
+      background: var(--blue);
+      border-radius: 50%;
+    }
+
+    /* —— Horizontal flow —— */
+    .reveal .flow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35em;
+      margin: 1.2em 0;
+      flex-wrap: wrap;
+    }
+
+    .reveal .flow-item {
+      background: var(--blue-soft);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.7em 1em;
+      font-size: 0.72em;
+      font-weight: 500;
+      text-align: center;
+      min-width: 6.5em;
+    }
+
+    .reveal .flow-arrow {
+      color: var(--blue);
+      font-size: 1.1em;
+      font-weight: 700;
+    }
+
+    /* —— Pipeline (3 agents) —— */
+    .reveal .pipeline {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      margin-top: 0.5em;
+    }
+
+    .reveal .pipe-box {
+      width: 88%;
+      background: var(--blue-soft);
+      border-radius: 12px;
+      padding: 0.65em 1.1em;
+      text-align: center;
+      font-size: 0.78em;
+    }
+
+    .reveal .pipe-box strong {
+      display: block;
+      color: var(--blue);
+      font-size: 1.05em;
+      margin-bottom: 0.15em;
+    }
+
+    .reveal .pipe-box span { color: var(--muted); }
+
+    .reveal .pipe-arrow {
+      color: var(--blue);
+      font-size: 1.2em;
+      line-height: 1;
+      margin: 0.1em 0;
+    }
+
+
+    /* —— Table —— */
+    .reveal table.compact {
+      font-size: 0.7em;
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.3em;
+    }
+
+    .reveal table.compact th {
+      background: var(--blue);
+      color: #fff;
+      padding: 0.45em 0.7em;
+      font-weight: 500;
+    }
+
+    .reveal table.compact td {
+      padding: 0.4em 0.7em;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .reveal .up { color: var(--green); font-weight: 500; }
+
+    /* —— Results slide —— */
+    .reveal .slides section.results-slide {
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: center !important;
+      height: 100% !important;
+      padding: 0 1.25rem !important;
+      text-align: center !important;
+      overflow: hidden !important;
+    }
+
+    .reveal .results-slide h2 {
+      text-align: center;
+      font-size: 1.15em !important;
+      margin: 0 0 0.4em !important;
+    }
+
+    .reveal .results-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.65em;
+      width: 96%;
+      max-width: 1000px;
+      margin: 0 auto;
+      align-items: stretch;
+    }
+
+    .reveal .results-panel {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.45em 0.55em;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
+    }
+
+    .reveal .results-panel-title {
+      font-size: 0.48em;
+      font-weight: 500;
+      color: var(--blue);
+      margin: 0 0 0.35em;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .reveal .results-meta {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-size: 0.5em;
+      line-height: 1.35;
+    }
+
+    .reveal .results-meta li {
+      margin-bottom: 0.28em;
+      color: var(--muted);
+    }
+
+    .reveal .results-meta li:last-child { margin-bottom: 0; }
+
+    .reveal .results-meta strong {
+      color: var(--blue);
+      font-weight: 500;
+    }
+
+    .reveal table.results {
+      font-size: 0.44em;
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .reveal table.results th {
+      background: var(--blue);
+      color: #fff;
+      padding: 0.28em 0.35em;
+      font-weight: 500;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .reveal table.results th:first-child { text-align: left; }
+
+    .reveal table.results td {
+      padding: 0.22em 0.35em;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+      text-align: center;
+    }
+
+    .reveal table.results td:first-child {
+      text-align: left;
+      font-family: "Roboto Mono", monospace;
+      font-size: 0.95em;
+    }
+
+    .reveal table.results tr:nth-child(even) td { background: rgba(248, 249, 250, 0.6); }
+
+    .reveal .badge {
+      display: inline-block;
+      padding: 0.1em 0.3em;
+      border-radius: 3px;
+      font-size: 0.85em;
+      font-weight: 500;
+    }
+
+    .reveal .badge-passed {
+      background: #e6f4ea;
+      color: var(--green);
+    }
+
+    .reveal .badge-marginal {
+      background: #fef7e0;
+      color: #b06000;
+    }
+
+    .reveal .results-foot {
+      font-size: 0.44em;
+      color: var(--muted);
+      width: 96%;
+      max-width: 1000px;
+      margin: 0.45em auto 0;
+      line-height: 1.35;
+      text-align: center;
+    }
+
+    /* —— Tags —— */
+    .reveal .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45em;
+      justify-content: center;
+      margin-top: 1em;
+    }
+
+    .reveal .tags span {
+      background: var(--blue-soft);
+      color: var(--blue);
+      padding: 0.3em 0.7em;
+      border-radius: 999px;
+      font-size: 0.68em;
+      font-weight: 500;
+    }
+
+    .reveal .progress span { background: var(--blue); }
+    .reveal .controls { color: var(--blue); }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- 1. Title -->
+      <section class="title-slide" data-background-color="#f8f9fa">
+        <div class="title-center">
+          <h1 class="title-main">Feature Creator</h1>
+        </div>
+        <p class="title-footer">Ai-agents</p>
+        <aside class="notes">
+          Представьтесь. CSV после EDA. CSV → признаки с метриками на моделях.
+        </aside>
+      </section>
+
+      <!-- 2. Problem -->
+      <section class="statement">
+        <p class="hero">Feature engineering — <em>самый долгий</em> этап ML</p>
+        <ul class="tight" style="max-width: 70%; margin: 0 auto;">
+          <li>Схема и роли столбцов — вручную</li>
+          <li>Идеи признаков — гипотезы и ablation</li>
+          <li>Проверка — несколько моделей</li>
+        </ul>
+        <aside class="notes">
+          Дни работы, доменная экспертиза. Легко пропустить сильные признаки и потратить время на слабые.
+          Не читайте список — пауза на «дни».
+        </aside>
+      </section>
+
+      <!-- 3. Solution -->
+      <section>
+        <h2>Один CSV — один прогон</h2>
+        <div class="flow">
+          <div class="flow-item">CSV<br><small>после EDA</small></div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-item">3<br>агента</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-item">Отчёт<br>+ JSON</div>
+        </div>
+        <ul class="tight">
+          <li>Понять данные и роли столбцов</li>
+          <li>Сгенерировать и посчитать признаки</li>
+          <li>Отобрать по CV на реальных моделях</li>
+        </ul>
+        <aside class="notes">
+          Веб-приложение Streamlit. Вход — CSV после этапа EDA (предобработка, схема, чистка — до Feature Creator).
+          На выходе: сводка, признаки с формулами, таблица baseline vs with_feature, превью enriched, JSON.
+        </aside>
+      </section>
+
+      <!-- 4. Agents -->
+      <section>
+        <h2>Три агента</h2>
+        <div class="pipeline">
+          <div class="pipe-box">
+            <strong>Data Analyst</strong>
+            <span>домен · роли столбцов · ML-задача</span>
+          </div>
+          <div class="pipe-arrow">▼</div>
+          <div class="pipe-box">
+            <strong>Feature Engineering</strong>
+            <span>формула · обоснование · расчёт</span>
+          </div>
+          <div class="pipe-arrow">▼</div>
+          <div class="pipe-box">
+            <strong>ML Validation</strong>
+            <span>LightGBM · XGBoost · MLP · ROC-AUC</span>
+          </div>
+        </div>
+        <aside class="notes">
+          Контекст передаётся по цепочке. В UI — карточки статуса и лог. 5-fold time-series CV, статусы passed / marginal.
+        </aside>
+      </section>
+
+      <!-- 5. Case: Tesla -->
+      <section>
+        <h2>Кейс: Tesla OHLCV</h2>
+        <p class="lead">Задача: направление <code>close</code> на завтра</p>
+        <ul class="tight" style="margin-top: 0.8em;">
+          <li>5 признаков: gap, VWAP, волатильность, range, volume z-score</li>
+          <li>У каждого — формула и «зачем»</li>
+        </ul>
+        <aside class="notes">
+          Демо live: eda/tesla.csv (уже после EDA) → «Запустить агентов» (~2–3 мин) → отчёт и JSON.
+          ~1510 дней, 2019–2024. Analyst: биржевые ряды, date — ось времени, без утечки из будущего в лагах.
+          gap_from_prev_close_pct, vwap_proxy_dev, volatility_20d, intraday_range_pct, volume_zscore_20 — детали по запросу.
+        </aside>
+      </section>
+
+      <!-- 6. Results -->
+      <section class="results-slide">
+        <h2>ML Validation: Tesla</h2>
+        <div class="results-body">
+          <div class="results-panel">
+            <p class="results-panel-title">Условия</p>
+            <ul class="results-meta">
+              <li><strong>Задача:</strong> close завтра ↑ / ↓</li>
+              <li><strong>CV:</strong> 5-fold time-series, без утечки</li>
+              <li><strong>Метрика:</strong> ROC-AUC (baseline vs +признак)</li>
+              <li><strong>Модели:</strong> LightGBM · XGBoost · MLP</li>
+            </ul>
+          </div>
+          <div class="results-panel results-panel--table">
+            <p class="results-panel-title">LightGBM · 5 признаков</p>
+            <table class="results">
+              <thead>
+                <tr>
+                  <th>Признак</th>
+                  <th>Base</th>
+                  <th>+feat</th>
+                  <th>Δ</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>gap_prev_close</td>
+                  <td>0.504</td>
+                  <td>0.524</td>
+                  <td class="up">+0.020</td>
+                  <td><span class="badge badge-passed" title="passed">✓</span></td>
+                </tr>
+                <tr>
+                  <td>vwap_dev</td>
+                  <td>0.504</td>
+                  <td>0.523</td>
+                  <td class="up">+0.020</td>
+                  <td><span class="badge badge-passed" title="passed">✓</span></td>
+                </tr>
+                <tr>
+                  <td>range_pct</td>
+                  <td>0.504</td>
+                  <td>0.521</td>
+                  <td class="up">+0.018</td>
+                  <td><span class="badge badge-passed" title="passed">✓</span></td>
+                </tr>
+                <tr>
+                  <td>vol_z20</td>
+                  <td>0.504</td>
+                  <td>0.513</td>
+                  <td class="up">+0.010</td>
+                  <td><span class="badge badge-passed" title="passed">✓</span></td>
+                </tr>
+                <tr>
+                  <td>vol_20d</td>
+                  <td>0.504</td>
+                  <td>0.511</td>
+                  <td class="up">+0.008</td>
+                  <td><span class="badge badge-passed" title="passed">✓</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <p class="results-foot">
+          Также XGBoost и MLP · <strong>passed</strong> / <strong>marginal</strong> по CV · цифры из обучения на данных
+        </p>
+        <aside class="notes">
+          Проговорите: валидатор обучает с baseline-набором OHLCV и с одним новым признаком.
+          gap — лучший на табличных моделях. volatility и volume — passed, но меньший delta.
+          gap на MLP — marginal (+0.0015). Если спросят про time-series — порядок по date, rolling только по прошлому.
+        </aside>
+      </section>
+
+      <!-- 7. Stack -->
+      <section class="center-slide">
+        <h2>Стек</h2>
+        <div class="tags">
+          <span>Python</span>
+          <span>Streamlit</span>
+          <span>pandas</span>
+          <span>sklearn</span>
+          <span>LightGBM</span>
+          <span>XGBoost</span>
+          <span>PyTorch</span>
+          <span>LLM</span>
+        </div>
+        <aside class="notes">
+          Артефакты: превью enriched-таблицы, JSON для пайплайна или feature store. Планы: batch, Parquet, MLOps.
+        </aside>
+      </section>
+
+      <!-- 8. Audience -->
+      <section class="statement">
+        <h2>Для кого</h2>
+        <ul class="tight" style="max-width: 55%; margin: 0 auto;">
+          <li>Data scientist — ideation</li>
+          <li>Аналитик — разбор нового CSV</li>
+          <li>Продукт — быстрый ML-прототип</li>
+        </ul>
+        <aside class="notes">
+          Дорожная карта: пакетная обработка, feature store, регрессия и мультикласс — только если спросят.
+        </aside>
+      </section>
+
+      <!-- 9. Close -->
+      <section class="center-slide statement">
+        <p class="hero" style="font-size: 1.5em;">Предобработанные данные → проверенные признаки<br>за один прогон</p>
+        <p class="lead" style="color: var(--blue); margin-top: 1.5em;">Загрузите свой файл</p>
+        <aside class="notes">
+          Итог: три агента закрывают цикл понять → придумать → отфильтровать. Спасибо.
+        </aside>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      slideNumber: "c/t",
+      transition: "fade",
+      transitionSpeed: "fast",
+      width: 1280,
+      height: 720,
+      margin: 0.1,
+      center: false
+    });
+  </script>
+</body>
+</html>

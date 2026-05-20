@@ -1,0 +1,71 @@
+{
+  "match_filenames": ["your_dataset.csv", "demo.csv"],
+  "dataset_summary": {
+    "domain": "удержание клиентов телеком",
+    "what_is_measured": "Поведение абонентов и признаки оттока по месяцам",
+    "possible_ml_task_types": ["classification"],
+    "possible_ml_task_comment": "Целевая переменная churn — бинарная классификация",
+    "uncertainty_note": "Сценарий презентации (фиксированный JSON)"
+  },
+  "column_roles": [
+    {
+      "column": "customer_id",
+      "roles": ["id"],
+      "rationale": "Уникальный идентификатор абонента"
+    },
+    {
+      "column": "churn",
+      "roles": ["target_candidate"],
+      "rationale": "Метка оттока"
+    }
+  ],
+  "feature_ideas": [
+    {
+      "name": "tenure_months_squared",
+      "formula_or_description": "tenure ** 2",
+      "rationale": "Нелинейная зависимость от срока обслуживания",
+      "applies_to_models": ["tabular", "nn"],
+      "implementation_notes": "Масштабировать после создания"
+    },
+    {
+      "name": "avg_charge_per_month",
+      "formula_or_description": "total_charges / max(tenure, 1)",
+      "rationale": "Средний чек нормализует суммарные платежи",
+      "applies_to_models": ["tabular"],
+      "implementation_notes": "Деление на ноль — заменить tenure=0 на 1"
+    }
+  ],
+  "ml_validation": [
+    {
+      "feature": "tenure_months_squared",
+      "model": "LightGBM",
+      "metric": "ROC-AUC",
+      "baseline": 0.812,
+      "with_feature": 0.819,
+      "delta": 0.007,
+      "cv_folds": 5,
+      "status": "passed"
+    },
+    {
+      "feature": "avg_charge_per_month",
+      "model": "XGBoost",
+      "metric": "ROC-AUC",
+      "baseline": 0.812,
+      "with_feature": 0.816,
+      "delta": 0.004,
+      "cv_folds": 5,
+      "status": "passed"
+    },
+    {
+      "feature": "tenure_months_squared",
+      "model": "MLP (PyTorch)",
+      "metric": "ROC-AUC",
+      "baseline": 0.798,
+      "with_feature": 0.804,
+      "delta": 0.006,
+      "cv_folds": 5,
+      "status": "passed"
+    }
+  ],
+  "enriched_preview": []
+}
