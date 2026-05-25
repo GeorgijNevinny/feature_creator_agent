@@ -477,7 +477,7 @@
           <div class="pipe-arrow">▼</div>
           <div class="pipe-box">
             <strong>ML Validation</strong>
-            <span>LightGBM · XGBoost · MLP · ROC-AUC</span>
+            <span>LightGBM · XGBoost · Linear Regression · ROC-AUC</span>
           </div>
         </div>
         <aside class="notes">
@@ -510,7 +510,7 @@
               <li><strong>Задача:</strong> close завтра ↑ / ↓</li>
               <li><strong>CV:</strong> 5-fold time-series, без утечки</li>
               <li><strong>Метрика:</strong> ROC-AUC (baseline vs +признак)</li>
-              <li><strong>Модели:</strong> LightGBM · XGBoost · MLP</li>
+              <li><strong>Модели:</strong> LightGBM · XGBoost · Linear Regression</li>
             </ul>
           </div>
           <div class="results-panel results-panel--table">
@@ -566,12 +566,12 @@
           </div>
         </div>
         <p class="results-foot">
-          Также XGBoost и MLP · <strong>passed</strong> / <strong>marginal</strong> по CV · цифры из обучения на данных
+          Также XGBoost и линейная регрессия · <strong>passed</strong> / <strong>marginal</strong> по CV · цифры из обучения на данных
         </p>
         <aside class="notes">
           Проговорите: валидатор обучает с baseline-набором OHLCV и с одним новым признаком.
           gap — лучший на табличных моделях. volatility и volume — passed, но меньший delta.
-          gap на MLP — marginal (+0.0015). Если спросят про time-series — порядок по date, rolling только по прошлому.
+          gap на линейной регрессии — marginal (+0.0015). Если спросят про time-series — порядок по date, rolling только по прошлому.
         </aside>
       </section>
 
@@ -585,7 +585,7 @@
           <span>sklearn</span>
           <span>LightGBM</span>
           <span>XGBoost</span>
-          <span>PyTorch</span>
+          <span>Linear Regression</span>
           <span>LLM</span>
         </div>
         <aside class="notes">

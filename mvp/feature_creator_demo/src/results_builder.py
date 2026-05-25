@@ -94,7 +94,7 @@ def build_demo_results(
                 "name": f"{_norm(amount)}_log1p",
                 "formula_or_description": f"log1p(max({amount}, 0))",
                 "rationale": "Сглаживает правый хвост распределения сумм; типично улучшает линейные и бустинговые модели.",
-                "applies_to_models": ["tabular", "nn"],
+                "applies_to_models": ["tabular", "linear"],
                 "implementation_notes": "Пропуски заполнить медианой до преобразования.",
             }
         )
@@ -114,7 +114,7 @@ def build_demo_results(
                 "name": "days_since_last_event",
                 "formula_or_description": f"(max({date_col}) - {date_col}).days по ключу сущности",
                 "rationale": "Рекенси — сильный сигнал для churn и fraud-сценариев.",
-                "applies_to_models": ["tabular", "nn"],
+                "applies_to_models": ["tabular", "linear"],
                 "implementation_notes": "Нужен стабильный парсинг дат; timezone унифицировать.",
             }
         )
@@ -124,7 +124,7 @@ def build_demo_results(
                 "name": f"{_norm(id_col)}_{_norm(amount)}_rolling_7d",
                 "formula_or_description": f"rolling_mean({amount}, 7d) в разрезе {id_col}",
                 "rationale": "Краткосрочный тренд активности сущности.",
-                "applies_to_models": ["tabular", "nn"],
+                "applies_to_models": ["tabular", "linear"],
                 "implementation_notes": "Сортировка по дате обязательна; холодный старт — NaN → 0 или медиана.",
             }
         )
@@ -136,7 +136,7 @@ def build_demo_results(
                     "name": f"ratio_{_norm(a)}_{_norm(b)}",
                     "formula_or_description": f"{a} / ({b} + 1e-6)",
                     "rationale": "Относительный признак между двумя полями профиля.",
-                    "applies_to_models": ["tabular", "nn"],
+                    "applies_to_models": ["tabular", "linear"],
                     "implementation_notes": "Проверить деление на ноль и масштаб.",
                 }
             )
@@ -215,7 +215,7 @@ def _synthetic_ml_validation(
     models = [
         ("LightGBM", "tabular"),
         ("XGBoost", "tabular"),
-        ("MLP (PyTorch)", "nn"),
+        ("Linear Regression (sklearn)", "linear"),
     ]
     metric_name = "ROC-AUC" if task in ("classification", "unknown") else "RMSE"
     rows: list[dict[str, Any]] = []
@@ -223,7 +223,7 @@ def _synthetic_ml_validation(
         fname = feat.get("name", "feature")
         seed = int(hashlib.md5(fname.encode()).hexdigest()[:8], 16)
         for model_name, kind in models:
-            if kind not in feat.get("applies_to_models", ["tabular", "nn"]):
+            if kind not in feat.get("applies_to_models", ["tabular", "linear"]):
                 continue
             baseline = 0.72 + (seed % 17) / 100.0
             delta = 0.004 + (seed % 11) / 1000.0

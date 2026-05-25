@@ -4,7 +4,7 @@
 
 1. **Data Analyst Agent** — анализ схемы и ролей столбцов  
 2. **Feature Engineering Agent** — генерация признаков  
-3. **ML Validation Agent** — «тесты» на LightGBM, XGBoost, MLP  
+3. **ML Validation Agent** — «тесты» на LightGBM, XGBoost, линейная регрессия (sklearn)  
 
 ## Запуск
 

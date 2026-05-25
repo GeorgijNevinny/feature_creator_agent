@@ -49,28 +49,28 @@
       "name": "gap_from_prev_close_pct",
       "formula_or_description": "(open - close.shift(1)) / close.shift(1)",
       "rationale": "Overnight gap отражает реакцию на новости вне сессии; на TSLA дал наибольший прирост ROC-AUC в time-series CV.",
-      "applies_to_models": ["tabular", "nn"],
+      "applies_to_models": ["tabular", "linear"],
       "implementation_notes": "Строгая сортировка по date; первый ряд — NaN."
     },
     {
       "name": "vwap_proxy_dev",
       "formula_or_description": "(close - (high+low+close)/3) / ((high+low+close)/3)",
       "rationale": "Отклонение close от typical price (прокси VWAP) кодирует внутридневное давление покупателей/продавцов.",
-      "applies_to_models": ["tabular", "nn"],
-      "implementation_notes": "Устойчив к масштабу цены; хорошо сочетается с tree-based и MLP."
+      "applies_to_models": ["tabular", "linear"],
+      "implementation_notes": "Устойчив к масштабу цены; хорошо сочетается с tree-based и линейными моделями."
     },
     {
       "name": "volatility_20d",
       "formula_or_description": "close.pct_change().rolling(20).std()",
       "rationale": "20-дневная реализованная волатильность — режим рынка; помогает модели различать спокойные и турбулентные периоды.",
-      "applies_to_models": ["tabular", "nn"],
+      "applies_to_models": ["tabular", "linear"],
       "implementation_notes": "Минимум 20 наблюдений до первого валидного значения."
     },
     {
       "name": "intraday_range_pct",
       "formula_or_description": "(high - low) / close",
       "rationale": "Нормированный дневной диапазон — прокси внутридневной неопределённости и «ширины» свечи.",
-      "applies_to_models": ["tabular", "nn"],
+      "applies_to_models": ["tabular", "linear"],
       "implementation_notes": "При close≈0 добавить epsilon в знаменатель."
     },
     {
@@ -154,7 +154,7 @@
     },
     {
       "feature": "vwap_proxy_dev",
-      "model": "MLP (PyTorch)",
+      "model": "Linear Regression (sklearn)",
       "metric": "ROC-AUC",
       "baseline": 0.5126,
       "with_feature": 0.5177,
@@ -164,7 +164,7 @@
     },
     {
       "feature": "intraday_range_pct",
-      "model": "MLP (PyTorch)",
+      "model": "Linear Regression (sklearn)",
       "metric": "ROC-AUC",
       "baseline": 0.5126,
       "with_feature": 0.5258,
@@ -174,7 +174,7 @@
     },
     {
       "feature": "gap_from_prev_close_pct",
-      "model": "MLP (PyTorch)",
+      "model": "Linear Regression (sklearn)",
       "metric": "ROC-AUC",
       "baseline": 0.5126,
       "with_feature": 0.5141,

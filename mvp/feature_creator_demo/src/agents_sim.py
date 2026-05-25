@@ -19,15 +19,6 @@ _STAGE_DURATION_SHARE = {
 _PIPELINE_DURATION_NORMAL = (160.0, 200.0)
 _PIPELINE_DURATION_FAST = (47.0, 63.0)
 
-_OHLCV_TOP_FEATURES = (
-    "gap_from_prev_close_pct",
-    "vwap_proxy_dev",
-    "volatility_20d",
-    "intraday_range_pct",
-    "volume_zscore_20",
-)
-
-
 @dataclass
 class AgentStage:
     agent_id: str
@@ -65,98 +56,39 @@ def _distribute_duration(n_steps: int, total_seconds: float) -> list[float]:
 
 
 def _validator_messages(ohlcv: bool) -> list[tuple[str, str]]:
-    features = list(_OHLCV_TOP_FEATURES) if ohlcv else [
-        "candidate_feature_1",
-        "candidate_feature_2",
-        "candidate_feature_3",
-        "candidate_feature_4",
-        "candidate_feature_5",
+    cv_label = "time-series CV" if ohlcv else "k-fold CV"
+    return [
+        ("Подготовка моделей и разбиения данных…", "dim"),
+        (f"Обучение baseline и сравнение метрик ({cv_label})…", ""),
+        ("Проверка кандидатов признаков на нескольких моделях…", ""),
+        ("Отбор успешных комбинаций и формирование отчёта…", "ok"),
     ]
-    models = ("LightGBM", "XGBoost", "MLP (PyTorch)")
-
-    msgs: list[tuple[str, str]] = [
-        ("Инициализация пайплайна: LightGBM, XGBoost, MLP…", ""),
-        ("Подготовка препроцессинга и разбиения 5-fold CV…", ""),
-        ("Baseline без новых признаков — обучение по фолдам…", ""),
-        ("Baseline: агрегация ROC-AUC…", ""),
-    ]
-    for i, feat in enumerate(features, 1):
-        msgs.append((f"Признак {i}/{len(features)}: {feat} — запуск CV…", ""))
-        for model in models:
-            msgs.append((f"  · {model}: fit / predict по фолдам…", ""))
-        msgs.append((f"  · сравнение с baseline, Δ ROC-AUC…", "ok" if i <= 3 else ""))
-    msgs.extend(
-        [
-            ("Сводная таблица: признак × модель × метрика…", ""),
-            ("Отбор комбинаций со статусом passed…", ""),
-            ("Формирование превью обогащённых строк…", ""),
-            ("Итоговый отчёт сформирован.", "ok"),
-        ]
-    )
-    return msgs
 
 
 def build_stages(profile: dict[str, Any]) -> list[AgentStage]:
     names = _profile_col_names(profile)
-    n_rows = profile.get("n_rows", "?")
-    n_cols = profile.get("n_cols", len(names))
-    sample_cols = ", ".join(names[:5]) + ("…" if len(names) > 5 else "")
     ohlcv = _is_ohlcv_profile(names)
 
-    analyst_tail = (
-        "Гипотеза задачи: next-day direction (OHLCV) + time-series CV",
-        "ok",
-    ) if ohlcv else (
-        "Гипотеза задачи: classification + tabular baseline",
-        "ok",
-    )
+    analyst_msgs: list[tuple[str, str]] = [
+        ("Анализ структуры и качества данных…", "dim"),
+        ("Контекст для feature engineering готов.", "ok"),
+    ]
 
     engineer_msgs: list[tuple[str, str]] = [
-        ("Получен контекст от Data Analyst Agent.", "dim"),
+        ("Генерация и отбор кандидатов признаков…", "dim"),
+        ("Проверка формул на утечку целевой переменной…", ""),
+        (
+            "Часть кандидатов отфильтрована (дубли / слабая информативность).",
+            "warn",
+        ),
+        ("Пакет признаков готов к валидации.", "ok"),
     ]
-    if ohlcv:
-        engineer_msgs.extend(
-            [
-                (
-                    "Кандидаты: gap overnight, typical-price deviation, "
-                    "rolling volatility, intraday range, volume z-score…",
-                    "",
-                ),
-                ("Сортировка по date; лаги только по прошлым дням…", ""),
-                ("Проверка формул на утечку target…", ""),
-                ("Отброшены дублирующие признаки (overnight ≡ gap).", "warn"),
-                ("Топ-5 признаков отобраны по Δ ROC-AUC на 5-fold TSCV.", "ok"),
-            ]
-        )
-    else:
-        engineer_msgs.extend(
-            [
-                ("Поиск кандидатов: log-трансформы, target encoding, рекенси…", ""),
-                ("Проверка формул на утечку target…", ""),
-                ("Отбрасываны 2 идеи с высокой корреляцией с id.", "warn"),
-                ("Ранжирование кандидатов по информативности…", ""),
-            ]
-        )
-    engineer_msgs.extend(
-        [
-            ("Пакет признаков готов к валидации.", "ok"),
-            ("Передача в ML Validation Agent.", "dim"),
-        ]
-    )
 
     return [
         AgentStage(
             agent_id="analyst",
             title="Data Analyst Agent",
-            messages=[
-                ("Загрузка профиля датасета…", "dim"),
-                (f"Строк в профиле: {n_rows} · столбцов: {n_cols}", ""),
-                (f"Сканирование полей: {sample_cols or '—'}", ""),
-                ("Оценка пропусков и кардинальности…", ""),
-                ("Классификация ролей: id / timestamp / target / feature…", ""),
-                analyst_tail,
-                ("Отчёт передан Feature Engineering Agent.", "ok"),
-            ],
+            messages=analyst_msgs,
         ),
         AgentStage(
             agent_id="engineer",

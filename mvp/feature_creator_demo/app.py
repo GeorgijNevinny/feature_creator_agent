@@ -29,8 +29,6 @@ from src.theme import inject_theme
 _SUMMARY_LABELS = {
     "domain": "Предметная область",
     "what_is_measured": "Что измеряется",
-    "possible_ml_task_types": "Типы ML-задач",
-    "possible_ml_task_comment": "Комментарий к задаче",
     "uncertainty_note": "Заметки по интерпретации",
 }
 
@@ -50,7 +48,7 @@ def _app_header(max_mb: float) -> None:
   <h1 class="app-page-title">Feature Creator</h1>
   <p class="app-page-subtitle">
     Загрузите CSV до {max_mb:g}&nbsp;МБ — три AI-агента проанализируют данные,
-    предложат признаки и проверят их на табличных и нейросетевых моделях.
+    предложат признаки и проверят их на бустинговых и линейных моделях.
   </p>
 </div>
         """,
@@ -106,7 +104,11 @@ def _render_results(result: dict) -> None:
     fi = result.get("feature_ideas")
     if isinstance(fi, list) and fi:
         _section_heading("Сгенерированные признаки")
-        st.dataframe(pd.DataFrame(fi), width="stretch", hide_index=True)
+        df_fi = pd.DataFrame(fi).drop(
+            columns=["applies_to_models", "implementation_notes"],
+            errors="ignore",
+        )
+        st.dataframe(df_fi, width="stretch", hide_index=True)
 
     ml = result.get("ml_validation")
     if isinstance(ml, list) and ml:
@@ -115,12 +117,6 @@ def _render_results(result: dict) -> None:
             "Статус **passed** — устойчивый прирост метрики на k-fold кросс-валидации."
         )
         st.dataframe(pd.DataFrame(ml), width="stretch", hide_index=True)
-        passed = sum(1 for r in ml if r.get("status") == "passed")
-        st.markdown(
-            f'<p style="text-align:center;margin:0.75rem 0 0;">'
-            f'<span class="metric-pill">{passed} комбинаций признак×модель прошли отбор</span></p>',
-            unsafe_allow_html=True,
-        )
 
     preview = result.get("enriched_preview")
     if isinstance(preview, list) and preview:

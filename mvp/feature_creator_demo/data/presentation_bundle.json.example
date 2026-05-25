@@ -24,7 +24,7 @@
       "name": "tenure_months_squared",
       "formula_or_description": "tenure ** 2",
       "rationale": "Нелинейная зависимость от срока обслуживания",
-      "applies_to_models": ["tabular", "nn"],
+      "applies_to_models": ["tabular", "linear"],
       "implementation_notes": "Масштабировать после создания"
     },
     {
@@ -58,7 +58,7 @@
     },
     {
       "feature": "tenure_months_squared",
-      "model": "MLP (PyTorch)",
+      "model": "Linear Regression (sklearn)",
       "metric": "ROC-AUC",
       "baseline": 0.798,
       "with_feature": 0.804,

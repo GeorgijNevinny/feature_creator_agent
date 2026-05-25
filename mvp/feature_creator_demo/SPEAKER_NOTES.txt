@@ -24,7 +24,7 @@ S — speaker notes в браузере (Reveal.js).
 СЛАЙД 6 — ML Validation (подробно)
   • Слева: задача, TSCV, метрика, три модели.
   • Таблица: все 5 признаков LightGBM, baseline → with_feature → Δ, passed.
-  • Снизу: XGBoost/MLP, marginal на MLP для gap. Цифры — реальное обучение.
+  • Снизу: XGBoost/линейная регрессия, marginal на linear для gap. Цифры — реальное обучение.
 
 СЛАЙД 7 — Стек
   • Планы (batch, MLOps) — если спросят.
